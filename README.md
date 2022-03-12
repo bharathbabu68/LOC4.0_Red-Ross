@@ -26,4 +26,4 @@ This is done by an easy quiz, probably around 10 questions, and once the reader 
 Our platform could even enable a revenue sharing model where the author could also make money from the interest earned, apart from what the platform pays the author. 
 
 ### How does our platform make money?
-Our platform will offer subscription servies to the customers that enable them to 
+Our platform will offer subscription servies to the customers that enable them to download unlimited number of books from the platform. From this, we will have to pay the author based on the number of downloads and reads that his books receive. The authors also get paid from the interest earned through the DeFi protocol. 
