@@ -7,15 +7,20 @@ import {
     Link,
   } from "react-router-dom";
 
-import Explore from './Components/Explore';
+import Library from './Components/Library';
 import NavBar from "./Components/NavBar";
 import Book from './Components/Book';
+import Authentication from './Components/Authentication';
 
 function App() {
     const getBoodId = ({match}) => {
+        var dataSend = {id:match.params.bookId};
+        var book;
+        
         return(
             <>
-                <Book productId={match.params.productId} />
+                
+                <Book bookId={match.params.bookId} />
             
             </>
 
@@ -27,18 +32,19 @@ function App() {
             <BrowserRouter>
             <Switch>
                 <Route
-                    exact path="/explore"
+                    exact path="/library"
                     component={() => {
-                        return <Explore />;
+                        return <Library />;
                     }}
                 />
                 <Route
                     exact path="/"
                     component={() => {
-                        return <Explore />;
+                        return <Authentication />;
                     }}
                 />
-                <Route path="/explore/:productId">
+                <Route 
+                    exact path="/library/:bookId">
                     {getBoodId}
                 </Route>
             </Switch>

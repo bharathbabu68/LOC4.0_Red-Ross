@@ -28,11 +28,23 @@ app.get("/explore", async(req, res) => {
     res.send(JSON.stringify(dataSend));
     
 });
-app.post("/", async(req,res) => {
+app.post("/book", async(req, res) => {
+    console.log("book details requested");
+    var book = {};
+    const client = new MongoClient(uri);
+    try{
+        await client.connect();
+        book = await client.db("LOC").collection("Books").findOne();
+        console.log(book);
+    }
+    catch(e){ console.error(e);}
+    finally{
+        await client.close(); 
+    }
+    var dataSend = {data: book};
+    res.send(JSON.stringify(book));
     
 });
-
-
 app.listen(8000, () => {
     console.log("Server running on port 8000");
 });

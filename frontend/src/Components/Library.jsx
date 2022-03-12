@@ -1,9 +1,9 @@
 import { Component } from "react";
-import {Button, Row, Col, Container, Card} from 'react-bootstrap';
+import {Button, Row, Col, Container, Card, Dropdown} from 'react-bootstrap';
 import {Link} from "react-router-dom";
 
 import ScaleLoader from 'react-spinners/ScaleLoader';
-class Explore extends Component{
+class Library extends Component{
     constructor(props){
         super(props);
         this.state = {
@@ -22,7 +22,7 @@ class Explore extends Component{
             if(res.ok) return res.json();
         }).then(async(res) => {
             console.log(res.data[0]);
-            await this.setState({books: [res.data[0],res.data[0],res.data[0]]});
+            await this.setState({books: [res.data[0],res.data[0],res.data[0], res.data[0]]});
             await this.setState({isLoading: false});
         });
     }
@@ -43,9 +43,9 @@ class Explore extends Component{
                 <>
                     {this.state.books.map((book)=>{
                         return(
-                            <Col md={4} 
+                            <Col md={3} 
                                 style={{padding: '30px'}}>
-                                <Link to={`/explore/${book._id}`} style={{textDecoration:"none", color:"black"}}>
+                                <Link to={`/library/${book._id}`} style={{textDecoration:"none", color:"black"}}>
 
                                 <Card 
                                     style={{borderTop:"1px solid black"}}>
@@ -79,14 +79,24 @@ class Explore extends Component{
                         <h2> Virtual Library </h2>
                         </Col>
                         <Col style={{textAlign:'right' }}>
-                        <Button variant="warning" style={{marginRight:'20px'}}> +  New Book </Button>
+                        <Button variant="outline-dark" style={{marginRight:'20px'}}> +  New Book </Button>
                         </Col>
                     </Row>
 
-                    <Row style={{marginTop:'30px '}}>
-                        <Col md={3}>
-                            <h3> Search </h3>
-                            <input type='text' style={{height:'40px'}}></input>
+                    <Row style={{}}>
+                        <Col md={3} style={{borderRight:'2px solid white', paddingTop:'20px'}}>
+                        <Dropdown style={{}}>
+                            <Dropdown.Toggle variant="dark" id="dropdown-basic"
+                                style={{width:'100%'}}
+                            >
+                                Search by Title
+                            </Dropdown.Toggle>
+
+                            <Dropdown.Menu>
+                                <Dropdown.Item href="#/action-1">Search by Author</Dropdown.Item>
+                            </Dropdown.Menu>
+                        </Dropdown>
+                            <input type='text' style={{height:'40px', marginTop:'20px', width:'100%'}}></input>
                             <h3 style={{marginTop:'20px'}}> Filter your Books </h3>
                             <input type='radio' name='fiction' value='fiction'></input>
                             <label for='fiction' style={{paddingLeft:'15px'}}> Fiction</label> <br />
@@ -106,7 +116,7 @@ class Explore extends Component{
                             <label style={{paddingLeft:'15px'}}> Bildungsroman</label><br />
                             
                         </Col>
-                        <Col md={9}>
+                        <Col md={9} style={{marginTop:'30px'}}>
                             <Row>
                             {this.renderBooks()}
                             </Row>
@@ -121,4 +131,4 @@ class Explore extends Component{
     }
 }
 
-export default Explore;
+export default Library;

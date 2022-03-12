@@ -16,7 +16,7 @@ class NavBar extends Component {
          <Navbar expand="lg"
 
         >
-          <Container>
+          <Container style={{borderBottom:'1px solid black'}}>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             
               <Navbar.Brand href="/explore" className="navbrandname">

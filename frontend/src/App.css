@@ -1,0 +1,21 @@
+body{
+  font-family: 'Roboto', sans-serif;
+  background-color: #fafafa;
+}
+
+.active-nav-link{
+  border-bottom: 2px solid gold ;
+}
+
+.authenticate-btn{
+  width: 100%;
+  border: 1px solid #212529;
+  color: #212529;
+  background-color: white;
+  
+}
+
+.authenticate-btn-active{
+  background-color: #212529;
+  color: white;
+}
