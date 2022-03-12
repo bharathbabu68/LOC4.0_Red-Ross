@@ -19,7 +19,7 @@ class NavBar extends Component {
           <Container style={{borderBottom:'1px solid black'}}>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             
-              <Navbar.Brand href="/explore" className="navbrandname">
+              <Navbar.Brand href="/library" className="navbrandname">
               <Image style={{height:"40px",width:"40px"}} src={logo}
               
                 /> 
@@ -33,7 +33,7 @@ class NavBar extends Component {
               <div className="navdiv navstyle">
                   <Nav.Link 
                   style={{fontWeight:"bolder", marginRight:'30px'}}
-                  href="/explore" className=" navlinks">
+                  href="/dashboard" className=" navlinks">
                     Dashboard
                   </Nav.Link>
                 </div>
@@ -41,8 +41,8 @@ class NavBar extends Component {
                 <div className="navdiv  navstyle ">
                   <Nav.Link 
                   style={{ fontWeight:"bolder", marginRight:'30px'}}
-                   href="/bidstats" className=" navlinks">
-                    Explore
+                   href="/library" className=" navlinks">
+                    Library
                   </Nav.Link>
                 </div>
                 <div className="navdiv navstyle ">

@@ -12,8 +12,7 @@ class Library extends Component{
         };
     }
     componentDidMount = async() => {
-        console.log('getting daat');
-        fetch("http://localhost:8000/explore",{
+        fetch("http://localhost:8000/library",{
             method: "GET",
             headers: {
                 'Content-Type' : 'application/json'
@@ -57,7 +56,7 @@ class Library extends Component{
                                                 <h5
                                                 style={{fontWeight:'bolder'}}
                                             >{book.name}</h5>
-                                            <p><em> by {this.state.books[0].author}</em></p>
+                                            <p><em> by {book.author}</em></p>
                                             </Col>
                                         </Row>                                 
                                 </Card>    
@@ -79,7 +78,9 @@ class Library extends Component{
                         <h2> Virtual Library </h2>
                         </Col>
                         <Col style={{textAlign:'right' }}>
-                        <Button variant="outline-dark" style={{marginRight:'20px'}}> +  New Book </Button>
+                        <Link to={'addBook'} style={{textDecoration:"none", color:"black"}}>
+                        <span style={{border:'1px solid #212529', padding:'15px', borderRadius:'3px'}}> +  New Book  </span>
+                        </Link>
                         </Col>
                     </Row>
 

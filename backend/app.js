@@ -11,7 +11,7 @@ app.use(bodyParser.json());
 const uri = "mongodb+srv://booky:ykoob@booky.gyemf.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
 const client = new MongoClient(uri);
 
-app.get("/explore", async(req, res) => {
+app.get("/library", async(req, res) => {
     
     const client = new MongoClient(uri);
     try{

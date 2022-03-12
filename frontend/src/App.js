@@ -11,7 +11,8 @@ import Library from './Components/Library';
 import NavBar from "./Components/NavBar";
 import Book from './Components/Book';
 import Authentication from './Components/Authentication';
-
+import Dashboard from './Components/Dashboard';
+import NewBook from './Components/NewBook';
 function App() {
     const getBoodId = ({match}) => {
         var dataSend = {id:match.params.bookId};
@@ -38,9 +39,21 @@ function App() {
                     }}
                 />
                 <Route
+                    exact path="/dashboard"
+                    component={() => {
+                        return <Dashboard />;
+                    }}
+                />
+                <Route
                     exact path="/"
                     component={() => {
                         return <Authentication />;
+                    }}
+                />
+                <Route
+                    exact path="/addBook"
+                    component={() => {
+                        return <NewBook />;
                     }}
                 />
                 <Route 
