@@ -1,6 +1,8 @@
 import { Component } from "react";
 import {Container, Image, Row, Col, Form, Button} from 'react-bootstrap';
 
+const Web3 = require('web3');
+
 class NewBook extends Component{
     constructor(props){
         super(props);
@@ -11,13 +13,122 @@ class NewBook extends Component{
             pagecount: '',
             genure: [],
             cost: [],
-            img: 'https://parkablogs.com/sites/default/files/images/no-cover-image.jpg'
+            img: 'https://parkablogs.com/sites/default/files/images/no-cover-image.jpg',
+            connectwalletstatus: 'Connect Wallet',
+            account_addr: '',
+            web3: null,
+            contractval:'',
+            connect_web3_modal:false,
+            metamask_installed:false,
+            not_logged_in:false,
         };
     }
+
+    componentDidMount = async() => {
+
+        var web3;
+        const Web3 = require('web3');
+        if(typeof window.web3 !== 'undefined'){
+            web3 = new Web3(window.ethereum);
+            console.log(web3);
+           //  var address = "0xE6CcAFB99015d50D631B2f310B50471EB411f8Da";
+           //  var contract = new web3.eth.Contract(abi, address);
+           //  this.setState({contractval: contract});
+            this.setState({web3: web3});
+            web3.eth.getAccounts().then((accounts) => {
+               if(accounts.length == 0){
+                   this.setState({connect_web3_modal: true});
+               }
+               else{
+                   this.initialiseAddress(web3);
+               }
+            });
+        }
+        else{
+            this.setState({metamask_installed:true});
+        }
+
+        if(window.ethereum) {
+            window.ethereum.on('accountsChanged', () => {
+                this.initialiseAddress(web3);
+                console.log("Account changed");
+            });
+        }
+    }
+
+        
+    initialiseAddress(web3) {
+
+        web3.eth.getAccounts().then((accounts) => {
+
+            var account_addr = accounts[0];
+            console.log(account_addr);
+    
+            this.setState({account_addr: accounts[0]});
+    
+            if(!account_addr) {
+                
+                this.setState({connectwalletstatus: 'Connect Wallet'});
+                return;
+            }
+    
+            const len = account_addr.length;
+            const croppedAddress = account_addr.substring(0,6) + "..." + account_addr.substring(len-4, len);
+    
+            web3.eth.getBalance(account_addr).then((balance) => {
+    
+                var account_bal = (Math.round(web3.utils.fromWei(balance) * 100) / 100);
+                var temp = "Connected :"  + croppedAddress + " (" + account_bal + " ETH)";
+                this.setState({connectwalletstatus: temp});
+                this.setState({connect_web3_modal: false});
+                console.log(temp);
+            });
+        });
+    }
+
+    connect(web3) {
+
+        window.ethereum
+        .request({ method: 'eth_requestAccounts' })
+        .catch((err) => {
+        if (err.code === 4001) {
+            alert('You refused connection to our website. Please connect to MetaMask.');
+            this.setState({connect_web3_modal: true});
+        } else {
+            console.error(err);
+        }
+        })
+    }
+
     render(){
         return(
             <>
+            
             <Container >
+            <Row style={{marginTop:'30px'}}>
+            <Col md={8}>
+                <h1 style={{fontWeight:'light'}}>Add Book to Store</h1>
+            </Col>
+            <Col md={4} style={{textAlign:'right'}}>
+                                <Button variant="dark"  
+                        style={{height:'3rem'}} onClick={
+                            () => {
+                                var web3 = this.state.web3;
+                                if(this.state.connectwalletstatus === 'Connect Wallet') {
+                                this.connect(web3);
+                                this.initialiseAddress(web3);
+                                }
+                                else {
+                                    var tempact = this.state.account_addr;
+                                    navigator.clipboard.writeText(tempact);
+		                            this.setState({connectwalletstatus: 'Copied'});
+		                            setTimeout(() => this.initialiseAddress(web3), 400);
+                                }
+                            }
+                        }>{this.state.connectwalletstatus} 
+                    </Button>
+                                </Col>
+            </Row>
             <Row style={{marginTop:'30px'}}>
                 <Col md={5}>
                     <Image src={this.state.img} 

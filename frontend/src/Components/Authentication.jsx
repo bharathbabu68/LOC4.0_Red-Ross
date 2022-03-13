@@ -23,7 +23,7 @@ class Authentication extends Component{
                             <Form.Label style={{fontSize:"20px"}}>Email address</Form.Label>
                             <Form.Control style={{height:"45px"}} type="email" placeholder="Enter email" 
                                 onChange={async(event) => {
-                                    await this.setState({lusermail: event.target.value});
+                                    await this.setState({username: event.target.value});
                                 }}
                             />
                         </Form.Group>
@@ -32,7 +32,7 @@ class Authentication extends Component{
                             <Form.Label style={{fontSize:"20px", marginTop:"30px"}}>Password</Form.Label>
                             <Form.Control style={{height:"45px"}}  type="password" placeholder="Password" 
                                 onChange={async(event) => {
-                                    await this.setState({lpassword: event.target.value});
+                                    await this.setState({password: event.target.value});
                                 }}
                             />
                         </Form.Group>
@@ -56,7 +56,7 @@ class Authentication extends Component{
                             <Form.Label style={{fontSize:"20px"}}>Email address</Form.Label>
                             <Form.Control style={{height:"45px"}} type="email" placeholder="Your Email" 
                             onChange={async(event) => {
-                                await this.setState({lusermail: event.target.value});
+                                await this.setState({username: event.target.value});
                             }}
                             />
                         </Form.Group>
@@ -65,7 +65,7 @@ class Authentication extends Component{
                             <Form.Label style={{fontSize:"20px", marginTop:"30px"}}>Password</Form.Label>
                             <Form.Control style={{height:"45px"}}  type="password" placeholder="Choose a Password"
                                 onChange={async(event) => {
-                                    await this.setState({lpassword: event.target.value});
+                                    await this.setState({password: event.target.value});
                                 }}
                              />
                         </Form.Group>
@@ -74,7 +74,7 @@ class Authentication extends Component{
                             <Form.Label style={{fontSize:"20px", marginTop:"30px"}}>Confirm Password</Form.Label>
                             <Form.Control style={{height:"45px"}}  type="password" placeholder="Confirm it" 
                                 onChange={async(event) => {
-                                    await this.setState({sconfirmpassword: event.target.value});
+                                    await this.setState({cpassword: event.target.value});
                                 }}
                             />
                         </Form.Group> 
@@ -105,13 +105,14 @@ class Authentication extends Component{
 
     }
     handleSignup(){
-        if(this.state.lpassword !== this.state.sconfirmpassword){
-            this.setState({password_mismatch:true});
+        if(this.state.password !== this.state.cpassword){
+            // this.setState({password_mismatch:true});
+            alert("Password Mismatch");
             return;
         }
         var newUser = {
-            username: this.state.lusermail.split("@")[0],
-            password: this.state.lpassword
+            username: this.state.username.split("@")[0],
+            password: this.state.password
         }
         console.log(newUser);
         fetch('http://localhost:8000/signup',{
@@ -125,19 +126,21 @@ class Authentication extends Component{
             if(response.ok) return response.json();
         }).then(async(res) => {
             if(res.success == 1){
-                this.setState({signup_success:true});
-                window.location.href = 'http://localhost:3000/explore';
+                // this.setState({signup_success:true});
+                alert("Signup Successful");
+                window.location.href = 'http://localhost:3000/dashboard';
             }
             else{
-                this.setState({user_already_exists:true});
+                alert("User already exists");
+                // this.setState({user_already_exists:true});
             }
         })
     }
     handleLogin()
     {
-        console.log(this.state.lusermail);
-        console.log(this.state.lpassword);
-        var key={name:this.state.lusermail.split("@")[0],password:this.state.lpassword};
+        console.log(this.state.username);
+        console.log(this.state.password);
+        var key={name:this.state.username.split("@")[0],password:this.state.password};
      
         fetch('http://localhost:8000/login',{
         method: 'POST',
@@ -152,15 +155,16 @@ class Authentication extends Component{
             console.log(res.success)
             if(res.success==1)
             {
-                await this.props.func(this.state.lusermail.split("@")[0]);
                 localStorage.setItem('user',JSON.stringify({token: "logged_in", status: 1}));
-                window.location.href = 'http://localhost:3000/explore';
+                window.location.href = 'http://localhost:3000/dashboard';
             }
             else if(res.success==-1){
-                this.setState({no_user_exists:true});
+                // this.setState({no_user_exists:true});
+                alert("No user exists with this email");
             }
             else{
-                this.setState({failed_login:true})
+                // this.setState({failed_login:true})
+                alert("Incorrect password");
             }
 
         })

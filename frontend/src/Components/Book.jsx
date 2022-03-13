@@ -1,5 +1,5 @@
 import { Component } from "react";
-import { Container, Row, Col, Image, Button } from 'react-bootstrap';
+import { Container, Row, Col, Image, Button, Badge } from 'react-bootstrap';
 import {FaEthereum} from 'react-icons/fa';
 import ScaleLoader from 'react-spinners/ScaleLoader';
 
@@ -26,12 +26,6 @@ class Book extends Component{
             await this.setState({book: res});
             await this.setState({isLoading: false});
         });
-    }
-    unixToDate(unix_timestamp) {
-        unix_timestamp = parseInt(unix_timestamp);
-        const timeStamp = unix_timestamp;
-        const date = new Date(timeStamp).toLocaleDateString('en-UK');
-        return date;
     }
     render(){
         if(this.state.isLoading){
@@ -72,17 +66,20 @@ class Book extends Component{
         
             
                         <h4> <em> by {this.state.book.author} </em></h4>
-                        <h3> {this.state.book.genure.map((g) => {
-                            return(<p
-                                style={{marginRight:'10px', display:'inline', padding:'10px', borderRadius:'500px', fontSize:'15px', backgroundColor:'#fafafa', border:'1px solid black'}}
-                            > {g} </p>);
-                        })} </h3>
-                        <h6 style={{marginTop:'30px'}}> ISBN : <strong> {this.state.book.isbn} </strong></h6>
-                        <h6> Page Count: <strong> {this.state.book.pagecount} </strong></h6>
+                        <br></br>
+                        <h4>Tags: </h4>
+                        {this.state.book.genure.map((g) => {
+                            return(<span  
+                            >  <Badge style={{padding:"5px"}}pill bg="dark"> <span style={{color:"white", fontSize:"larger"}}>{g}</span></Badge> </span>);
+                        })} 
                         <hr /> 
-                        <h4 style={{marginTop:'30px'}}> Expected Incetive : <strong className="text-dark">{this.state.book.incentive}<FaEthereum /></strong> 
+                        <h4 style={{marginTop:'30px'}}> ISBN : <strong> {this.state.book.isbn} </strong></h4>
+                        <h4> Page Count: <strong> {this.state.book.pagecount} </strong></h4>
+            
+                        <h4 > Expected Incentive Amount: <strong className="text-dark">{this.state.book.incentive / 100}<FaEthereum /></strong> 
                         </h4>
-                        <h5> Upcoming Batch : <strong> {this.unixToDate(this.state.book.upcoming_bdate)} </strong></h5>
+                        <h4> Upcoming Cohort : <strong> March 30th 2022 </strong></h4>
+                        <h4> Number of reads: <strong>18</strong></h4>
                         {/* <h5> Current Winner: <span style={{fontWeight:'light', fontSize:'17px'}}> {this.state.product.winner_address} </span> </h5> */}
                         <hr />
             
@@ -92,7 +89,7 @@ class Book extends Component{
                                 <Button  className="btn-lg" variant="dark"
                                     style={{width:'90%', fontWeight:'bolder' }}
                                     
-                                > Add to My Shelf </Button>
+                                > Add to Shelf </Button>
                             </Col>
                             
                             
