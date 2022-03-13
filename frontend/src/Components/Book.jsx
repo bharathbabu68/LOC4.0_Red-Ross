@@ -55,7 +55,7 @@ class Book extends Component{
                 <Row style={{marginTop:'30px'}}>
                     <Col md={5}>
                         <Image src={this.state.book.img} 
-                            style={{margin:'50px', objectFit:'cover'}}
+                            style={{margin:'50px', objectFit:'cover', height:'500px'}}
                         />
                     </Col>
                     <Col md={7} style={{padding:'50px'}}>
@@ -88,8 +88,27 @@ class Book extends Component{
                             <Col md={5}>
                                 <Button  className="btn-lg" variant="dark"
                                     style={{width:'90%', fontWeight:'bolder' }}
-                                    
-                                > Add to Shelf </Button>
+                                    onClick={()=>{
+                                        var dataSend ={
+                                            username: 'admin',
+                                            bookId: this.state.book.blockchain_id
+                                        }
+                                        fetch("http://localhost:8000/reading",{
+                                        method: "POST",
+                                        headers: {
+                                            'Content-Type' : 'application/json'
+                                        },
+                                        body: JSON.stringify(dataSend)
+                                    }).then((res)=>{
+                                        if(res.ok) return res.json();
+                                    }).then(async(res) => {
+                                        if(res.data === "success"){
+                                            window.location.href = "/dashboard";
+                                        }
+                                        
+                                    });
+                                    }}
+                                > Add to My Shelf </Button>
                             </Col>
                             
                             
