@@ -32,7 +32,9 @@ class Library extends Component{
             await this.setState({books: res.data});
             await this.setState({isLoading: false});
             await this.setState({filteredBooks: res.data});
+            
         });
+        
         document.querySelector("#check-all").checked = true;
     }
     renderBooks(){
@@ -185,7 +187,9 @@ class Library extends Component{
                         </Col>
                         <Col style={{textAlign:'right' }}>
                         <Link to={'addBook'} style={{textDecoration:"none", color:"black"}}>
-                        <span style={{border:'1px solid #212529', padding:'15px', borderRadius:'3px'}}> +  New Book  </span>
+                        <span style={{border:'1px solid #212529', padding:'15px', borderRadius:'3px'}}
+                            
+                        > +  New Book  </span>
                         </Link>
                         </Col>
                     </Row>

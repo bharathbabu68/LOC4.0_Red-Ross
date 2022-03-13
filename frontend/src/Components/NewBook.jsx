@@ -10,7 +10,7 @@ class NewBook extends Component{
             isbn:'',
             pagecount: '',
             genure: [],
-            cost: [],
+            cost: 0,
             img: 'https://parkablogs.com/sites/default/files/images/no-cover-image.jpg'
         };
     }
@@ -79,7 +79,7 @@ class NewBook extends Component{
                                 <Form.Label style={{fontSize:"20px", marginTop:"30px"}}>Initial Deposit</Form.Label>
                                 <Form.Control style={{height:"45px"}}  type="number" placeholder="Deposit" 
                                     onChange={async(event) => {
-                                        await this.setState({lpassword: event.target.value});
+                                        await this.setState({cost: event.target.value});
                                     }}
                                 />
                                 </Form.Group>
@@ -87,7 +87,30 @@ class NewBook extends Component{
                             <Col md={6}>
                                 <Button variant="dark" 
                                     style={{marginTop:'70px',backgroundColor:"#262A53", width:'100%'}} 
-                                    onClick={this.handleLogin}
+                                    onClick={()=>{
+                                        var data = {
+                                            name: this.state.name,
+                                            author: this.state.author,
+                                            isbn: this.state.isbn,
+                                            pagecount: this.state.pagecount,
+                                            genure: ['Mystry'],
+                                            cost: this.state.cost,
+                                            img: this.state.img
+
+                                        }
+                                        fetch("http://localhost:8000/addbook",{
+                                            method: "POST",
+                                            headers: {
+                                                'Content-Type' : 'application/json'
+                                            },
+                                            body: JSON.stringify(data)
+                                        }).then((res)=>{
+                                            if(res.ok) return res.json();
+                                        }).then(async(res) => {
+                                            console.log(res.data);
+                                            window.location.href = "/library";
+                                        });
+                                    }}
                                 >
                                     Add to Library
                                 </Button>

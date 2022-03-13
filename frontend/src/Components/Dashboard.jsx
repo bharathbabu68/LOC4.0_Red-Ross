@@ -1,5 +1,5 @@
 import { Component } from "react";
-import {Row, Col, Container, Image, Card, Button} from 'react-bootstrap';
+import {Row, Col, Container, Image, Card, Button, Modal} from 'react-bootstrap';
 import { FaEthereum } from "react-icons/fa";
 import {RiMedalFill} from 'react-icons/ri';
 import ScaleLoader from 'react-spinners/ScaleLoader';
@@ -14,7 +14,11 @@ class Dashboard extends Component{
             readingBooks: [],
             readBooks: [],
             allBooks: [],
-            books: []
+            books: [],
+            isMember: false,
+            membershipShow: false,
+            bookShow: false,
+            selectedBook: {}
         };
 
     }
@@ -36,7 +40,30 @@ class Dashboard extends Component{
             await this.setState({isLoading: false});
         });
     }
+    renderMembership(){
+        if(this.state.isMember){
+            return(
+                <>
+                <p> Your Membership expires on Apr 16, 2022 </p>
+                </>
+            );
+        }
+        else{
+            return(
+                <>
+                <p><a onClick={async()=>{
+                    this.setState({membershipShow:true})
+                }}
+                className="text-primary"
+                style={{cursor:'pointer'}}
+                >Become a member</a> to avail all the features</p>
+                </>
+            )
+        }
+    }
     render(){
+        const handleMemberClose = async() => this.setState({membershipShow:false});
+        const handleBookClose = async() => this.setState({bookShow:false});
         if(this.state.isLoading){
             return(
                 <Col 
@@ -50,7 +77,86 @@ class Dashboard extends Component{
         else{
             return(
                 <>
+                <Modal show={this.state.membershipShow} onHide={handleMemberClose}>
+                    <Modal.Header closeButton>
+                    <Modal.Title>Become a Super Reader </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Row>
+                            <Col md={5}>
+                                <Image src="https://5.imimg.com/data5/SM/ZI/DY/SELLER-42012147/ribbon-gold-medal-500x500.jpg"
+                                style={{height:'200px', objectFit:'cover'}} />
+
+                            </Col>
+                            <Col md={7}>
+                                <h5> Membership Features </h5>
+                                <ul>
+                                    <li> Limitless access to Books</li>
+                                    <li> Best reading interface </li>
+                                    <li> Access to community forum to read with your friends</li>
+                                </ul>
+                                <h5>Cost <strong>150 <FaEthereum /> </strong></h5>
+                                <h6> Duration : <strong> 3 mos </strong></h6>
+                                <Button 
+                                    style={{width:'100%'}}
+                                    variant="dark"
+                                    onClick={()=>{
+                                        
+                                    }}
+                                > Join now</Button>
+                            </Col>
+                        </Row>
+
+                    </Modal.Body>
+                    
+                </Modal>
+                <Modal show={this.state.bookShow} onHide={handleBookClose}>
+                    <Modal.Header closeButton>
+                    <Modal.Title> Your Book </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Row>
+                            <Col md={5}>
+                                <Image src={this.state.selectedBook.img}
+                                style={{height:'200px', objectFit:'cover'}} />
+
+                            </Col>
+                            <Col md={7}>
+                                <h5> {this.state.selectedBook.name} </h5>
+                                <h6><em>{this.state.selectedBook.author}</em></h6>
+                                
+                                <Button 
+                                    style={{width:'100%', marginTop:'50px'}}
+                                    variant="outline-dark"
+                                    onClick={()=>{
+                                        var data = {username: 'admin', bookId: this.state.selectedBook.blockchain_id};
+                                        fetch("http://localhost:8000/completebook",{
+                                            method: "POST",
+                                            headers: {
+                                                'Content-Type' : 'application/json'
+                                            },
+                                            body: JSON.stringify(data)
+                                        }).then((res)=>{
+                                            if(res.ok) return res.json();
+                                        }).then(async(res) => {
+                                            console.log(res.data);
+                                            await this.setState({bookShow:false});
+                                        });
+                                    }}
+                                > Take Quiz </Button>
+                                <a href="https://www.info24service.com/wp-content/uploads/4-Harry-Potter-and-the-Goblet-of-Fire_US_ISBN-0-439-13959-7_2014-191-1447.pdf">
+                                <Button 
+                                    style={{width:'100%', marginTop:'10px'}}
+                                    variant="dark"
+                                > Download </Button> </a>
+                            </Col>
+                        </Row>
+
+                    </Modal.Body>
+                    
+                </Modal>
                     <Container>
+                        
                         <Row style={{marginTop:'30px'}}>
                             <Col md={3} >
                                 <h2 > <strong>Your Stats </strong></h2>
@@ -82,6 +188,7 @@ class Dashboard extends Component{
                                 </Row>
                             </Col>
                             <Col md={9}>
+                                {this.renderMembership()}
                                 <h2> <strong> Reading Books </strong></h2>
                                 <Row>
                                 {this.state.allBooks.filter((book) => {
@@ -91,10 +198,15 @@ class Dashboard extends Component{
                                 }).map((book)=>{
                                     return(
                                         <Col md={3} 
-                                            style={{padding: '30px'}}>
-                                            <a href="https://www.info24service.com/wp-content/uploads/4-Harry-Potter-and-the-Goblet-of-Fire_US_ISBN-0-439-13959-7_2014-191-1447.pdf"
-                                            style={{textDecoration:"none", color:"black"}}
+                                            style={{padding: '30px'}}
+
+                                            onClick={async()=>{
+                                                await this.setState({selectedBook:book});
+                                                await this.setState({bookShow:true});
+                                            }}
                                             >
+                                            
+                                            
                                             <Card 
                                                 style={{borderTop:"1px solid black"}}>
                                                     <Card.Img 
@@ -109,7 +221,6 @@ class Dashboard extends Component{
                                                         </Col>
                                                     </Row>                                 
                                             </Card> 
-                                            </a>   
                                             {/* </Link> */}
                                         </Col>
                                     )
