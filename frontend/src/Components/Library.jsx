@@ -87,7 +87,7 @@ class Library extends Component{
                         return(
                             <Col md={3} 
                                 style={{padding: '30px'}}>
-                                <Link to={`/library/${book._id}`} style={{textDecoration:"none", color:"black"}}>
+                                <Link to={`/library/${book.blockchain_id}`} style={{textDecoration:"none", color:"black"}}>
 
                                 <Card 
                                     style={{borderTop:"1px solid black"}}>

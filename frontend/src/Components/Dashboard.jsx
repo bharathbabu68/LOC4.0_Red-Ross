@@ -12,22 +12,27 @@ class Dashboard extends Component{
         this.state = {
             isLoading: true,
             readingBooks: [],
-            readBooks: []
+            readBooks: [],
+            allBooks: [],
+            books: []
         };
 
     }
     componentDidMount = () => {
-        fetch("http://localhost:8000/library",{
-            method: "GET",
+        var data = {username: 'admin'};
+        fetch("http://localhost:8000/dashboard",{
+            method: "POST",
             headers: {
                 'Content-Type' : 'application/json'
             },
+            body: JSON.stringify(data)
         }).then((res)=>{
             if(res.ok) return res.json();
         }).then(async(res) => {
-            console.log(res.data[0]);
-            await this.setState({readingBooks: [res.data[0],res.data[0],res.data[0], res.data[0]]});
-            await this.setState({readBooks: this.state.readingBooks});
+            console.log(res.data);
+            await this.setState({allBooks: res.allBooks});
+
+            await this.setState({books: res.books});
             await this.setState({isLoading: false});
         });
     }
@@ -79,12 +84,17 @@ class Dashboard extends Component{
                             <Col md={9}>
                                 <h2> <strong> Reading Books </strong></h2>
                                 <Row>
-                                {this.state.readingBooks.map((book)=>{
+                                {this.state.allBooks.filter((book) => {
+                                    for(var j=0; j<this.state.books.length; j++){
+                                        if(book.blockchain_id === this.state.books[j].blockchain_id && this.state.books[j].status === 'current') return true;
+                                    }
+                                }).map((book)=>{
                                     return(
                                         <Col md={3} 
                                             style={{padding: '30px'}}>
-                                            <Link to={`/library/${book._id}`} style={{textDecoration:"none", color:"black"}}>
-
+                                            <a href="https://www.info24service.com/wp-content/uploads/4-Harry-Potter-and-the-Goblet-of-Fire_US_ISBN-0-439-13959-7_2014-191-1447.pdf"
+                                            style={{textDecoration:"none", color:"black"}}
+                                            >
                                             <Card 
                                                 style={{borderTop:"1px solid black"}}>
                                                     <Card.Img 
@@ -98,8 +108,9 @@ class Dashboard extends Component{
                                                         <p><em> by {book.author}</em></p>
                                                         </Col>
                                                     </Row>                                 
-                                            </Card>    
-                                            </Link>
+                                            </Card> 
+                                            </a>   
+                                            {/* </Link> */}
                                         </Col>
                                     )
                                 })}
@@ -107,7 +118,11 @@ class Dashboard extends Component{
 
                                 <h2> <strong> Completed Books </strong></h2>
                                 <Row>
-                                {this.state.readBooks.map((book)=>{
+                                {this.state.allBooks.filter((book) => {
+                                    for(var j=0; j<this.state.books.length; j++){
+                                        if(book.blockchain_id === this.state.books[j].blockchain_id && this.state.books[j].status === 'complete') return true;
+                                    }
+                                }).map((book)=>{
                                     return(
                                         <Col md={3} 
                                             style={{padding: '30px'}}>
