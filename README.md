@@ -1,7 +1,7 @@
 # LOC4.0_Red-Ross
 ### Submission for Line of Code Hackathon
 
-⚠ Still haven't completed building the project 
+⚠ Still haven't completed building the project, but check out our slides for the idea 
 
 -------------------------
 
