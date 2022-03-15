@@ -50,7 +50,7 @@ class Library extends Component{
         if(typeof window.web3 !== 'undefined'){
             web3 = new Web3(window.ethereum);
             console.log(web3);
-            var address = "0x368610772b1dbd5ae2c7fa79a1972dbf3ed1bed5";
+            var address = "0x63aD6BB5F68a1937898673f9E43D24eB1B7aaC45";
             var contract = new web3.eth.Contract(abi, address);
             this.setState({contractval: contract});
             this.setState({web3: web3});
@@ -135,11 +135,11 @@ class Library extends Component{
                                             style={{height:'250px', objectfit:'cover'}}
                                             src={book.img}/>
                                         <Row style={{marginTop: '20px'}}>
-                                            <Col style={{paddingLeft:'20px'}}>
+                                            <Col style={{paddingLeft:'10px'}}>
                                                 <h5
-                                                style={{fontWeight:'bolder'}}
+                                                style={{fontWeight:'bolder', paddingRight: '5px'}}
                                             >{book.name}</h5>
-                                            <p><em> by {book.author}</em></p>
+                                            <p style={{paddingRight:'5px'}}><em> by {book.author}</em></p>
                                             </Col>
                                         </Row>                                 
                                 </Card>    

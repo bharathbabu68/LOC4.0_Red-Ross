@@ -177,24 +177,33 @@ app.post("/dashboard", async(req, res) => {
 });
 app.post("/addbook", async(req, res) => {
     console.log("new book adding requested");
+    const client = new MongoClient(uri);
+    var booksArr;
+    try{
+        await client.connect();
+        const books = await client.db("LOC").collection("Books").find();
+        booksArr = await books.toArray();
+        
+    }
+    catch(e){ console.error(e);}
+    finally{
+        await client.close(); 
+    }
     var book = {
         name: req.body.name,
-        author: req.body.username,
+        author: req.body.author,
         isbn: req.body.isbn,
         pagecount: req.body.pagecount,
         img: req.body.img,
         cost: parseInt(req.body.cost),
         genure: req.body.genure,
         incentive: parseInt(req.body.cost)/12,
-        blockchain_id: parseInt(booksCount+1)
+        blockchain_id: parseInt(booksArr.length+1)
     };
     
-    const client = new MongoClient(uri);
+    
     try{
         await client.connect();
-        var books = await client.db("LOC").collection("Books").find();
-        var booksArr = books.toArray();
-        book[blockchain_id] = booksArr.length+1;
         await client.db("LOC").collection("Books").insertOne(book);
     }
     catch(e){ console.error(e);}

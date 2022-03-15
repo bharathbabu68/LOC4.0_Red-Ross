@@ -1,9 +1,10 @@
 import { Component } from "react";
-import {Row, Col, Container, Image, Card, Button, Modal} from 'react-bootstrap';
+import {Row, Col, Container, Image, Card, Button, Modal, Table} from 'react-bootstrap';
 import { FaEthereum } from "react-icons/fa";
 import {RiMedalFill} from 'react-icons/ri';
 import ScaleLoader from 'react-spinners/ScaleLoader';
 import {Link} from 'react-router-dom';
+import {abi} from "../Resources/abi";
 const Web3 = require('web3');
 
 
@@ -54,9 +55,9 @@ class Dashboard extends Component{
          if(typeof window.web3 !== 'undefined'){
              web3 = new Web3(window.ethereum);
              console.log(web3);
-            //  var address = "0xE6CcAFB99015d50D631B2f310B50471EB411f8Da";
-            //  var contract = new web3.eth.Contract(abi, address);
-            //  this.setState({contractval: contract});
+             var address = "0x63aD6BB5F68a1937898673f9E43D24eB1B7aaC45";
+             var contract = new web3.eth.Contract(abi, address);
+             this.setState({contractval: contract});
              this.setState({web3: web3});
              web3.eth.getAccounts().then((accounts) => {
                 if(accounts.length == 0){
@@ -77,13 +78,15 @@ class Dashboard extends Component{
                  console.log("Account changed");
              });
          }
+
         }
 
          initialiseAddress(web3) {
 
-            web3.eth.getAccounts().then((accounts) => {
+            web3.eth.getAccounts().then(async (accounts) => {
     
                 var account_addr = accounts[0];
+
                 console.log(account_addr);
         
                 this.setState({account_addr: accounts[0]});
@@ -104,6 +107,7 @@ class Dashboard extends Component{
                     this.setState({connectwalletstatus: temp});
                     this.setState({connect_web3_modal: false});
                     console.log(temp);
+                    
                 });
             });
         }
@@ -135,12 +139,12 @@ class Dashboard extends Component{
         else{
             return(
                 <>
-                <p><a onClick={async()=>{
+                <p>Not a member already?, <a onClick={async()=>{
                     this.setState({membershipShow:true})
                 }}
                 className="text-primary"
                 style={{cursor:'pointer'}}
-                >Become a member</a> to avail all the features</p>
+                >Become a member</a> to get the best experience</p>
                 </>
             )
         }
@@ -179,13 +183,31 @@ class Dashboard extends Component{
                                     <li> Best reading interface </li>
                                     <li> Access to community forum to read with your friends</li>
                                 </ul>
-                                <h5>Cost <strong>150 <FaEthereum /> </strong></h5>
+                                <h5>Cost <strong>2 <FaEthereum /> </strong></h5>
                                 <h6> Duration : <strong> 3 mos </strong></h6>
                                 <Button 
                                     style={{width:'100%'}}
                                     variant="dark"
                                     onClick={()=>{
-                                        
+                                        var web3 = this.state.web3;
+                                        var account_addr = this.state.account_addr;
+                                        var contract = this.state.contractval;
+
+                                            contract.methods.is_a_member().call({from: account_addr}).then(async (result) => {
+                                                console.log(result);
+                                                if(result==1){
+                                                    alert("You are already a member");
+                                                    this.setState({isMember: true});
+                                                }
+                                                else{
+                                                    contract.methods.purchase_membership(2).send({from: account_addr, value: web3.utils.toWei('2', 'ether')}).then(async (result) => {
+                                                        console.log(result);
+                                                        await this.setState({isMember: true});
+                                                        alert("Membership purchased");
+                                                        this.setState({membershipShow:false});
+                                                    });
+                                                }
+                                            });
                                     }}
                                 > Join now</Button>
                             </Col>
@@ -233,6 +255,10 @@ class Dashboard extends Component{
                                     style={{width:'100%', marginTop:'10px'}}
                                     variant="dark"
                                 > Download </Button> </a>
+                                <a href="https://discord.gg/3Yg7nctn"><Button 
+                                    style={{width:'100%', marginTop:'10px'}}
+                                    variant="outline-dark"
+                                > Community </Button> </a>
                             </Col>
                         </Row>
 
@@ -285,33 +311,81 @@ class Dashboard extends Component{
                         
                         <Row style={{marginTop:'30px'}}>
                             <Col md={3} >
-                                <h4 > <strong>Your Stats </strong></h4>
-                                <Row style={{marginTop:'20px'}}>
-                                    <Col md={6}><h4>Incentives</h4></Col>
-                                    <Col md={4}><h4><strong>256</strong></h4></Col>
+                                <h3 > Your Stats </h3>
+                                <Row style={{marginTop:'20px', width:'80%', textAlign:'center'}}>
+                                <Table striped bordered hover size="sm">
+                                    <thead>
+                                        <tr>
+                                        <th>Stat</th>
+                                        <th>Score</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                        <td>Books Read</td>
+                                        <td>25</td>
+                                        </tr>
+                                        <tr>
+                                        <td>Incentive Earned</td>
+                                        <td>15</td>
+                                        </tr>
+                                        <tr>
+                                        <td >Currently Reading</td>
+                                        <td>6</td>
+                                        </tr>
+                                        <tr>
+                                        <td >Completed</td>
+                                        <td>1</td>
+                                        </tr>
+                                        <tr>
+                                        <td >Stark</td>
+                                        <td>10</td>
+                                        </tr>
+                                    </tbody>
+                                    </Table>
                                 </Row>
-                                <Row>
-                                    <Col md={6}><h4>Books read</h4></Col>
-                                    <Col md={4}><h4><strong>7</strong></h4></Col>
+
+                                <h3 style={{marginTop:'30px'}} > Leaderboard</h3>
+
+                                <Row style={{marginTop:'20px', width:'80%', textAlign:'center'}}>
+                                <Table striped bordered hover size="sm">
+                                    <thead>
+                                        <tr>
+                                        <th>#</th>
+                                        <th>User</th>
+                                        <th>Books Read</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                        <td>1</td>
+                                        <td>Mark</td>
+                                        <td>25</td>
+                                        </tr>
+                                        <tr>
+                                        <td>2</td>
+                                        <td>Jacob</td>
+                                        <td>15</td>
+                                        </tr>
+                                        <tr>
+                                        <td>3</td>
+                                        <td >Larre</td>
+                                        <td>10</td>
+                                        </tr>
+                                        <tr>
+                                        <td>4</td>
+                                        <td >Nick</td>
+                                        <td>10</td>
+                                        </tr>
+                                        <tr>
+                                        <td>5</td>
+                                        <td >Stark</td>
+                                        <td>10</td>
+                                        </tr>
+                                    </tbody>
+                                    </Table>
                                 </Row>
-                                <Row>
-                                    <Col md={6}><h4>Rank</h4></Col>
-                                    <Col md={4}><h4><strong>1125</strong></h4></Col>
-                                </Row>
-                                <h2 style={{marginTop:'30px'}} > <strong>Leaderboard</strong></h2>
-                                
-                                <Row style={{marginTop:'20px'}}>
-                                    <Col md={8}><h4><span><RiMedalFill/></span> Robert Downey</h4></Col>
-                                    <Col md={4}><h4>119</h4></Col>
-                                </Row>
-                                <Row style={{marginTop:'20px'}}>
-                                    <Col md={8}><h4><span style={{color:'grey'}}><RiMedalFill/></span> Sachin Khan</h4></Col>
-                                    <Col md={4}><h4>118</h4></Col>
-                                </Row>
-                                <Row style={{marginTop:'20px'}}>
-                                    <Col md={8}><h4><span style={{color:'#c7c7c7'}}><RiMedalFill/></span> Vinoth Ramji</h4></Col>
-                                    <Col md={4}><h4>114</h4></Col>
-                                </Row>
+
                             </Col>
                             <Col md={9}>
                                 {this.renderMembership()}
@@ -347,7 +421,7 @@ class Dashboard extends Component{
                                 }).map((book)=>{
                                     return(
                                         <Col md={3} 
-                                            style={{padding: '30px'}}
+                                            style={{padding: '30px', cursor: 'pointer'}}
 
                                             onClick={async()=>{
                                                 await this.setState({selectedBook:book});
@@ -386,7 +460,7 @@ class Dashboard extends Component{
                                     return(
                                         <Col md={3} 
                                             style={{padding: '30px'}}>
-                                            <Link to={`/library/${book._id}`} style={{textDecoration:"none", color:"black"}}>
+                                            <Link to={`/library/${book.blockchain_id}`} style={{textDecoration:"none", color:"black"}}>
 
                                             <Card 
                                                 style={{borderTop:"1px solid black"}}>

@@ -1,6 +1,6 @@
 import { Component } from "react";
 import {Container, Image, Row, Col, Form, Button} from 'react-bootstrap';
-
+import {abi} from "../Resources/abi";
 const Web3 = require('web3');
 
 class NewBook extends Component{
@@ -21,6 +21,7 @@ class NewBook extends Component{
             connect_web3_modal:false,
             metamask_installed:false,
             not_logged_in:false,
+            account_balance:0,
         };
     }
 
@@ -31,9 +32,9 @@ class NewBook extends Component{
         if(typeof window.web3 !== 'undefined'){
             web3 = new Web3(window.ethereum);
             console.log(web3);
-           //  var address = "0xE6CcAFB99015d50D631B2f310B50471EB411f8Da";
-           //  var contract = new web3.eth.Contract(abi, address);
-           //  this.setState({contractval: contract});
+            var address = "0x63aD6BB5F68a1937898673f9E43D24eB1B7aaC45";
+            var contract = new web3.eth.Contract(abi, address);
+            this.setState({contractval: contract});
             this.setState({web3: web3});
             web3.eth.getAccounts().then((accounts) => {
                if(accounts.length == 0){
@@ -78,6 +79,7 @@ class NewBook extends Component{
             web3.eth.getBalance(account_addr).then((balance) => {
     
                 var account_bal = (Math.round(web3.utils.fromWei(balance) * 100) / 100);
+                this.setState({account_balance: account_bal});
                 var temp = "Connected :"  + croppedAddress + " (" + account_bal + " ETH)";
                 this.setState({connectwalletstatus: temp});
                 this.setState({connect_web3_modal: false});
@@ -199,28 +201,52 @@ class NewBook extends Component{
                                 <Button variant="dark" 
                                     style={{marginTop:'70px',backgroundColor:"#262A53", width:'100%'}} 
                                     onClick={()=>{
-                                        var data = {
-                                            name: this.state.name,
-                                            author: this.state.author,
-                                            isbn: this.state.isbn,
-                                            pagecount: this.state.pagecount,
-                                            genure: ['Mystry'],
-                                            cost: this.state.cost,
-                                            img: this.state.img
+                                        
+                                        if(this.state.cost > this.state.account_balance) {
+                                            console.log(this.state.account_balance)
+                                            alert("Insufficient Balance");
+                                            return;
+                                        }
+
+                                        else if(this.state.cost < 2){
+                                            alert("Minimum Deposit is 2 ETH");
+                                            return;
+                                        }
+
+                                        else{
+
+                                            var web3 = this.state.web3;
+                                            var account_addr = this.state.account_addr;
+                                            var contract = this.state.contractval;
+                                            contract.methods.add_new_book(this.state.name, this.state.author).send({from: account_addr, value: web3.utils.toWei(this.state.cost, 'ether')})
+                                            .on('transactionHash', (hash) => {
+                                                alert("Your book has been added to the store");
+                                                var data = {
+                                                    name: this.state.name,
+                                                    author: this.state.author,
+                                                    isbn: this.state.isbn,
+                                                    pagecount: this.state.pagecount,
+                                                    genure: ['Mystry'],
+                                                    cost: this.state.cost,
+                                                    img: this.state.img
+
+                                                }
+                                                fetch("http://localhost:8000/addbook",{
+                                                    method: "POST",
+                                                    headers: {
+                                                        'Content-Type' : 'application/json'
+                                                    },
+                                                    body: JSON.stringify(data)
+                                                }).then((res)=>{
+                                                    if(res.ok) return res.json();
+                                                }).then(async(res) => {
+                                                    console.log(res.data);
+                                                    window.location.href = "/library";
+                                                });
+                                            })
+
 
                                         }
-                                        fetch("http://localhost:8000/addbook",{
-                                            method: "POST",
-                                            headers: {
-                                                'Content-Type' : 'application/json'
-                                            },
-                                            body: JSON.stringify(data)
-                                        }).then((res)=>{
-                                            if(res.ok) return res.json();
-                                        }).then(async(res) => {
-                                            console.log(res.data);
-                                            window.location.href = "/library";
-                                        });
                                     }}
                                 >
                                     Add to Library

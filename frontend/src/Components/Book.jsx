@@ -1,14 +1,24 @@
 import { Component } from "react";
-import { Container, Row, Col, Image, Button, Badge } from 'react-bootstrap';
+import { Container, Row, Col, Image, Button, Badge, Modal } from 'react-bootstrap';
 import {FaEthereum} from 'react-icons/fa';
+import {abi} from "../Resources/abi";
 import ScaleLoader from 'react-spinners/ScaleLoader';
+const Web3 = require('web3');
 
 class Book extends Component{
     constructor(props){
         super(props);
         this.state = {
             book: {},
-            isLoading: true
+            isLoading: true,
+            connectwalletstatus: 'Connect Wallet',
+            account_addr: '',
+            web3: null,
+            contractval:'',
+            connect_web3_modal:false,
+            metamask_installed:false,
+            member_modal:false,
+            membership_result:-1,
         };
     }
     componentDidMount = () => {
@@ -26,8 +36,98 @@ class Book extends Component{
             await this.setState({book: res});
             await this.setState({isLoading: false});
         });
+
+        var web3;
+        const Web3 = require('web3');
+        if(typeof window.web3 !== 'undefined'){
+            web3 = new Web3(window.ethereum);
+            console.log(web3);
+            var address = "0x63aD6BB5F68a1937898673f9E43D24eB1B7aaC45";
+            var contract = new web3.eth.Contract(abi, address);
+            console.log(contract);
+            this.setState({contractval: contract});
+            this.setState({web3: web3});
+            web3.eth.getAccounts().then((accounts) => {
+               if(accounts.length == 0){
+                   this.setState({connect_web3_modal: true});
+               }
+               else{
+                   this.initialiseAddress(web3);
+               }
+            });
+        }
+        else{
+            this.setState({metamask_installed:true});
+        }
+
+        if(window.ethereum) {
+            window.ethereum.on('accountsChanged', () => {
+                this.initialiseAddress(web3);
+                console.log("Account changed");
+            });
+        }
     }
+
+    initialiseAddress(web3) {
+
+        web3.eth.getAccounts().then((accounts) => {
+
+            var account_addr = accounts[0];
+            console.log(account_addr);
+    
+            this.setState({account_addr: accounts[0]});
+    
+            if(!account_addr) {
+                
+                this.setState({connectwalletstatus: 'Connect Wallet'});
+                return;
+            }
+    
+            const len = account_addr.length;
+            const croppedAddress = account_addr.substring(0,6) + "..." + account_addr.substring(len-4, len);
+    
+            web3.eth.getBalance(account_addr).then((balance) => {
+    
+                var account_bal = (Math.round(web3.utils.fromWei(balance) * 100) / 100);
+                var temp = "Connected :"  + croppedAddress + " (" + account_bal + " ETH)";
+                this.setState({connectwalletstatus: temp});
+                this.setState({connect_web3_modal: false});
+                console.log(temp);
+            });
+        });
+    }
+
+    connect(web3) {
+
+        window.ethereum
+        .request({ method: 'eth_requestAccounts' })
+        .catch((err) => {
+        if (err.code === 4001) {
+            alert('You refused connection to our website. Please connect to MetaMask.');
+            this.setState({connect_web3_modal: true});
+        } else {
+            console.error(err);
+        }
+        })
+    }
+
+
     render(){
+                <Modal show={this.state.member_modal}>
+                <Modal.Header >
+                <Modal.Title>Become a paid member</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                <p>Become a paid member and unlock all the benefits of this platform. </p>
+                </Modal.Body>
+                <Modal.Footer>
+                <Button variant="secondary" onClick={()=>{this.setState({member_modal:false})
+            }}>
+                Close
+            </Button>
+            </Modal.Footer>
+        </Modal>
+
         if(this.state.isLoading){
             return(
                 <Col 
@@ -52,6 +152,28 @@ class Book extends Component{
             return(
                 <>
                 <Container >
+                <Row style={{marginTop:'15px'}}>
+                <Col md={12} style={{textAlign:'right'}}>
+                                <Button variant="dark"  
+                        style={{height:'3rem'}} onClick={
+                            () => {
+                                var web3 = this.state.web3;
+                                if(this.state.connectwalletstatus === 'Connect Wallet') {
+                                this.connect(web3);
+                                this.initialiseAddress(web3);
+                                }
+                                else {
+                                    var tempact = this.state.account_addr;
+                                    navigator.clipboard.writeText(tempact);
+		                            this.setState({connectwalletstatus: 'Copied'});
+		                            setTimeout(() => this.initialiseAddress(web3), 400);
+                                }
+                            }
+                        }>{this.state.connectwalletstatus} 
+                    </Button>
+                </Col>
+                </Row>
+
                 <Row style={{marginTop:'30px'}}>
                     <Col md={5}>
                         <Image src={this.state.book.img} 
@@ -76,9 +198,9 @@ class Book extends Component{
                         <h4 style={{marginTop:'30px'}}> ISBN : <strong> {this.state.book.isbn} </strong></h4>
                         <h4> Page Count: <strong> {this.state.book.pagecount} </strong></h4>
             
-                        <h4 > Expected Incentive Amount: <strong className="text-dark">{this.state.book.incentive / 100}<FaEthereum /></strong> 
+                        <h4 > Expected Incentive Amount: <strong className="text-dark">{Math.round(100 * this.state.book.incentive) / 100}<FaEthereum /></strong> 
                         </h4>
-                        <h4> Upcoming Cohort : <strong> March 30th 2022 </strong></h4>
+                        <h4> Upcoming Cohort :  March 30th 2022 </h4>
                         <h4> Number of reads: <strong>18</strong></h4>
                         {/* <h5> Current Winner: <span style={{fontWeight:'light', fontSize:'17px'}}> {this.state.product.winner_address} </span> </h5> */}
                         <hr />
@@ -89,7 +211,16 @@ class Book extends Component{
                                 <Button  className="btn-lg" variant="dark"
                                     style={{width:'90%', fontWeight:'bolder' }}
                                     onClick={()=>{
-                                        var dataSend ={
+
+                                        // validate whether the sender is a member or not
+                                        var web3 = this.state.web3;
+                                        var account_addr = this.state.account_addr;
+                                        var contract = this.state.contractval;
+                                        contract.methods.is_a_member().call({from: account_addr}).then(async (result) => {
+                                            if(result==0)
+                                                alert("You are not a member. Please become a member to buy this book.");
+                                            else{
+                                                    var dataSend ={
                                             username: 'admin',
                                             bookId: this.state.book.blockchain_id
                                         }
@@ -107,6 +238,30 @@ class Book extends Component{
                                         }
                                         
                                     });
+                                            }
+                                        });
+
+
+
+
+                                    //     var dataSend ={
+                                    //         username: 'admin',
+                                    //         bookId: this.state.book.blockchain_id
+                                    //     }
+                                    //     fetch("http://localhost:8000/reading",{
+                                    //     method: "POST",
+                                    //     headers: {
+                                    //         'Content-Type' : 'application/json'
+                                    //     },
+                                    //     body: JSON.stringify(dataSend)
+                                    // }).then((res)=>{
+                                    //     if(res.ok) return res.json();
+                                    // }).then(async(res) => {
+                                    //     if(res.data === "success"){
+                                    //         window.location.href = "/dashboard";
+                                    //     }
+                                        
+                                    // });
                                     }}
                                 > Add to My Shelf </Button>
                             </Col>
